@@ -21,6 +21,8 @@ import java.util.Map;
  */
 public class HttpRequest extends AsyncTask<HttpCall, String, String>{
 
+    private static final String UTF_8 = "UTF-8";
+
     @Override
     protected String doInBackground(HttpCall... params) {
         HttpURLConnection urlConnection = null;
@@ -31,9 +33,11 @@ public class HttpRequest extends AsyncTask<HttpCall, String, String>{
             URL url = new URL(httpCall.getMethodtype() == HttpCall.GET ? httpCall.getUrl() + dataParams : httpCall.getUrl());
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(httpCall.getMethodtype() == HttpCall.GET ? "GET":"POST");
+            urlConnection.setReadTimeout(10000 /* milliseconds */);
+            urlConnection.setConnectTimeout(15000 /* milliseconds */);
             if(httpCall.getParams() != null && httpCall.getMethodtype() == HttpCall.POST){
                 OutputStream os = urlConnection.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os,"UTF-8"));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, UTF_8));
                 writer.append(dataParams);
                 writer.flush();
                 writer.close();
@@ -81,9 +85,9 @@ public class HttpRequest extends AsyncTask<HttpCall, String, String>{
             }else{
                 result.append("&");
             }
-            result.append(URLEncoder.encode(entry.getKey(),"UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(),"UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), UTF_8));
         }
         return result.toString();
     }
